@@ -105,6 +105,7 @@ class ILI9341
     void drawTriangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
     void fillTriangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
     void drawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t size, uint16_t foreColor, uint16_t backColor);
+    void drawString(uint16_t x, uint16_t y, const char* str, uint16_t strSize, uint16_t charSize, uint16_t foreColor, uint16_t backColor);
     void fillBackground(uint16_t color);
     void setRotation(uint8_t rot);
 

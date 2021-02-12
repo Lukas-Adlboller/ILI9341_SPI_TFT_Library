@@ -357,10 +357,14 @@ void ILI9341::fillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint
 
 /*
   void fillBackground(uint16_t) fills the background of the display with a specific color.
+  While sending color pixels display will be turned off so that the long drawing animation 
+  will not be shown.
 */
 void ILI9341::fillBackground(uint16_t color)
 {
+  writeCommand(ILI9341_DISPOFF);
   fillRectangle(0, 0, width, height, color);
+  writeCommand(ILI9341_DISPON);
 }
 
 /*
@@ -713,5 +717,18 @@ void ILI9341::drawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t size, u
 
       line >>= 1;
     }
+  }
+}
+
+/*
+  void drawString(uint16_t, uint16_t, const char*, uint16_t, uint16_t, uint16_t, uint16_t) draws a string on the display.
+*/
+void ILI9341::drawString(uint16_t x, uint16_t y, const char* str, uint16_t strSize, uint16_t charSize, uint16_t foreColor, uint16_t backColor)
+{
+  uint16_t xi = x;
+  for(auto i = 0; i < strSize; i++)
+  {
+    drawChar(xi, y, str[i], charSize, foreColor, backColor);
+    xi += 5 * charSize + 1; // 5 * charSize is the width of one drawn character + 1 for space between character.
   }
 }

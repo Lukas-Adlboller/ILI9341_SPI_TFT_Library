@@ -10,7 +10,6 @@ int main()
   tftDisplay.setRotation(0);
   
   tftDisplay.fillBackground(WHITE);
-  
-  tftDisplay.drawLine(0, 0, 240, 320, BLACK);
+  tftDisplay.drawString(10, 10, "Hello World", 11, 2, YELLOW, WHITE);
   printf("[Info] Prog finished!\n");
 }
