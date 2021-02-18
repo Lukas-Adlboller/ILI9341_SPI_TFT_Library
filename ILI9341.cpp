@@ -260,7 +260,7 @@ void ILI9341::drawPixel(uint16_t x, uint16_t y, uint16_t color)
 */
 void ILI9341::drawVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color)
 {
-  setAddrWindow(x, y, h, 1);
+  setAddrWindow(x, y, 1, h);
 
   spiPort->format(16, 3);
   for(auto i = 0; i < h; i++)
@@ -277,7 +277,7 @@ void ILI9341::drawVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color)
 */
 void ILI9341::drawHLine(uint16_t x, uint16_t y, uint16_t w, uint16_t color)
 {
-  setAddrWindow(x, y, 1, w);
+  setAddrWindow(x, y, w, 1);
 
   spiPort->format(16, 3);
   for(auto i = 0; i < w; i++)
