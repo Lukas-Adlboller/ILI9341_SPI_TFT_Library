@@ -6,9 +6,8 @@
 /*
   ILI9341(SPI*, PinName, PinName, PinName) initializes class and all needed pins for ILI9341 Display.
 */
-ILI9341::ILI9341(SPI* spiPort, PinName cs, PinName rst, PinName dc) : chipSelect(cs), reset(rst), dataCommand(dc)
+ILI9341::ILI9341(PinName mosi, PinName miso, PinName clk, PinName cs, PinName rst, PinName dc) : spi(mosi, miso, clk), chipSelect(cs), reset(rst), dataCommand(dc)
 {
-  this->spiPort = spiPort;
   orientation = 0;
   width = ILI9341_TFTWIDTH;
   height = ILI9341_TFTHEIGHT;
@@ -164,8 +163,8 @@ static const unsigned char font[] =
 */
 void ILI9341::initialize(void)
 {
-  spiPort->format(8, 3);
-  spiPort->frequency(10000000);
+  spi.format(8, 3);
+  spi.frequency(40000000);
   chipSelect = 1;
   dataCommand = 1;
   
@@ -195,7 +194,7 @@ void ILI9341::initialize(void)
       uint8_t oldIndex = index;
       for(; index < oldIndex + numArgs; index++)
       {
-        spiPort->write(initCommands[index]);
+        spi.write(initCommands[index]);
       }
     }
 
@@ -213,18 +212,18 @@ void ILI9341::setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 
   writeCommand(ILI9341_CASET);  // Column address set
 
-  spiPort->format(16, 3);
-  spiPort->write(x);
-  spiPort->write(x2);
-  spiPort->format(8, 3);
+  spi.format(16, 3);
+  spi.write(x);
+  spi.write(x2);
+  spi.format(8, 3);
   chipSelect = 1;
 
   writeCommand(ILI9341_PASET);  // Row address set
 
-  spiPort->format(16, 3);
-  spiPort->write(y);
-  spiPort->write(y2);
-  spiPort->format(8, 3);
+  spi.format(16, 3);
+  spi.write(y);
+  spi.write(y2);
+  spi.format(8, 3);
   chipSelect = 1;
 
   writeCommand(ILI9341_RAMWR);  // Write to RAM
@@ -237,7 +236,7 @@ void ILI9341::writeCommand(uint8_t cmd)
 {
   dataCommand = 0;
   chipSelect = 0;
-  spiPort->write(cmd);
+  spi.write(cmd);
   dataCommand = 1;
 }
 
@@ -248,9 +247,9 @@ void ILI9341::drawPixel(uint16_t x, uint16_t y, uint16_t color)
 {
   setAddrWindow(x, y, 1, 1);
 
-  spiPort->format(16, 3);
-  spiPort->write(color);
-  spiPort->format(8, 3);
+  spi.format(16, 3);
+  spi.write(color);
+  spi.format(8, 3);
 
   chipSelect = 1;
 }
@@ -262,12 +261,12 @@ void ILI9341::drawVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color)
 {
   setAddrWindow(x, y, 1, h);
 
-  spiPort->format(16, 3);
+  spi.format(16, 3);
   for(auto i = 0; i < h; i++)
   {
-    spiPort->write(color);
+    spi.write(color);
   }
-  spiPort->format(8, 3);
+  spi.format(8, 3);
 
   chipSelect = 1;
 }
@@ -279,12 +278,12 @@ void ILI9341::drawHLine(uint16_t x, uint16_t y, uint16_t w, uint16_t color)
 {
   setAddrWindow(x, y, w, 1);
 
-  spiPort->format(16, 3);
+  spi.format(16, 3);
   for(auto i = 0; i < w; i++)
   {
-    spiPort->write(color);
+    spi.write(color);
   }
-  spiPort->format(8, 3);
+  spi.format(8, 3);
 
   chipSelect = 1;
 }
@@ -300,22 +299,22 @@ void ILI9341::setRotation(uint8_t rot)
   switch(rotation)
   {
     case 0:
-      spiPort->write(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
+      spi.write(ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR);
       width = ILI9341_TFTWIDTH;
       height = ILI9341_TFTHEIGHT;
       break;
     case 1:
-      spiPort->write(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
+      spi.write(ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
       width = ILI9341_TFTHEIGHT;
       height = ILI9341_TFTWIDTH;
       break;
     case 2:
-      spiPort->write(ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
+      spi.write(ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
       width = ILI9341_TFTWIDTH;
       height = ILI9341_TFTHEIGHT;
       break;
     case 3:
-      spiPort->write(ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
+      spi.write(ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR);
       width = ILI9341_TFTHEIGHT;
       height = ILI9341_TFTWIDTH;
       break;
@@ -342,15 +341,15 @@ void ILI9341::fillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint
 {
   setAddrWindow(x, y, w, h);
 
-  spiPort->format(16, 3);
+  spi.format(16, 3);
   for(auto i = 0; i < h; i++)
   {
     for(auto j = 0; j < w; j++)
     {
-      spiPort->write(color);
+      spi.write(color);
     }
   }
-  spiPort->format(8, 3);
+  spi.format(8, 3);
 
   chipSelect = 1;
 }

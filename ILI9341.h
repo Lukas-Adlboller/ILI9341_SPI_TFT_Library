@@ -1,6 +1,5 @@
 #include "mbed.h"
 #include <cstdint>
-#include <stdarg.h>
 
 // ILI9341 SPI Commands
 #define ILI9341_NOP         0x00  // No-op register
@@ -75,6 +74,7 @@
 #define PURPLE              0x780F
 #define OLIVE               0x7BE0
 #define LIGHT_GRAY          0xC618
+#define GRAY                0xA514
 #define DARK_GRAY           0x7BEF
 #define BLUE                0x001F
 #define GREEN               0x07E0
@@ -89,10 +89,12 @@
 #define ILI9341_TFTWIDTH    240
 #define ILI9341_TFTHEIGHT   320
 
+#ifndef ILI9341_H
+#define ILI9341_H
 class ILI9341
 {
   public:
-    ILI9341(SPI* spiPort, PinName cs, PinName rst, PinName dc);
+    ILI9341(PinName mosi, PinName miso, PinName clk, PinName cs, PinName rst, PinName dc);
     void initialize(void);
     void drawPixel(uint16_t x, uint16_t y, uint16_t color);
     void drawVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color);
@@ -110,7 +112,7 @@ class ILI9341
     void setRotation(uint8_t rot);
 
   private:
-    SPI* spiPort;
+    SPI spi;
     DigitalOut chipSelect;  // Chip Select Pin
     DigitalOut reset;       // Reset Pin
     DigitalOut dataCommand; // Data/Command Select Pin
@@ -124,3 +126,4 @@ class ILI9341
     void fillCircleHelper(uint16_t xc, uint16_t yc, uint16_t r, uint8_t corners, uint16_t color);
     int8_t signumFunc(int16_t x);
 };
+#endif
